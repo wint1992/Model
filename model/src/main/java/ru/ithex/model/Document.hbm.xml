@@ -1,0 +1,14 @@
+<hibernate-mapping package="ru.ithex.model">
+	<class name="Document" table="oltp.document">
+		<id name="docID" column="ID" type="java.lang.Integer">
+			<generator class="increment" />
+		</id>
+		<property name="docType" column="Type" type="java.lang.Integer" />
+		<property name="issueDate" column="issue_Date" type="java.util.Date" />
+		<property name="serial" column="serial" type="java.lang.String" />
+		<property name="number" column="number" type="java.lang.String" />
+		<property name="issuer" column="issuer" type="java.lang.String" />
+		<property name="isOriginal" column="is_Original" type="java.lang.Boolean" />
+		<property name="amountPages" column="amount_Pages" type="java.lang.Integer" />
+	</class>	
+</hibernate-mapping>

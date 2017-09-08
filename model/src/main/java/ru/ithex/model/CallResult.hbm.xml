@@ -1,0 +1,19 @@
+<hibernate-mapping package="ru.ithex.model">
+	<class name="CallResult" table="oltp.call_result">
+		<id name="callResultID" column="ID" type="java.lang.Integer">
+			<generator class="increment" />
+		</id>
+		<property name="callType" column="call_type" type="java.lang.Integer" />
+		<property name="isActive" column="is_active" type="java.lang.Integer" />
+		<property name="callDateTime" column="call_date_time" type="java.util.Date" />
+		<property name="callDecision" column="call_decision" type="java.lang.Integer" />		
+		<set name="reasonCodes" lazy="false" fetch="join" cascade="save-update, delete">
+			<key column="call_result_fk"/>
+			<one-to-many class="ReasonCode"/>
+		</set>
+		<set name="nextSteps" lazy="false" fetch="join" cascade="save-update, delete">
+			<key column="call_result_fk"/>
+			<one-to-many class="NextStep"/>
+		</set>
+	</class>	
+</hibernate-mapping>

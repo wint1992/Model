@@ -1,0 +1,11 @@
+<hibernate-mapping package="ru.ithex.model">
+	<class name="Order" table="oltp.order">
+		<id name="orderID" column="ID" type="java.lang.Integer">
+			<generator class="increment" />
+		</id>
+		<property name="productCount" column="product_count" type="java.lang.Integer" />
+		<property name="orderCost" column="order_cost" type="java.math.BigDecimal" />
+		<property name="orderComment" column="order_comment" type="java.lang.String" />
+		<many-to-one name="product" column="product_fk" class="Product" />
+	</class>	
+</hibernate-mapping>

@@ -1,0 +1,60 @@
+<hibernate-mapping package="ru.ithex.model">
+	<class name="ISOrganization" table="oltp.is_organization">
+		<id name="organizationID" column="organization_id" type="java.lang.Integer">
+			<generator class="increment" />
+		</id>
+		<property name="status" column="status" type="java.lang.Integer" />
+		<property name="registrationDate" column="registration_date" type="java.util.Date" />
+		<property name="closeDate" column="close_date" type="java.util.Date" />
+		<property name="inn" column="inn" type="java.lang.String" />
+		<property name="ogrn" column="ogrn" type="java.lang.String" />
+		<property name="okopf" column="okopf" type="java.lang.String" />
+		<property name="okved" column="okved" type="java.lang.String" />
+		<property name="fullName" column="full_name" type="java.lang.String" />
+		<property name="okpo" column="okpo" type="java.lang.String" />
+  		<component name="address" class="Address">
+			<property name="country" column="a_country" type="java.lang.String" />
+			<property name="regionType" column="a_region_type" type="java.lang.String" />
+			<property name="regionName" column="a_region_name" type="java.lang.String" />
+			<property name="districtType" column="a_district_type" type="java.lang.String" />
+			<property name="districtName" column="a_district_name" type="java.lang.String" />
+			<property name="microdistrict" column="a_microdistrict" type="java.lang.String" />
+			<property name="locationType" column="a_location_type" type="java.lang.String" />
+			<property name="cityType" column="a_city_type" type="java.lang.String" />
+			<property name="city" column="a_city" type="java.lang.String" />
+			<property name="streetType" column="a_street_type" type="java.lang.String" />
+			<property name="street" column="a_street" type="java.lang.String" />
+			<property name="house" column="a_house" type="java.lang.String" />
+			<property name="construction" column="a_construction" type="java.lang.String" />
+			<property name="building" column="a_building" type="java.lang.String" />
+			<property name="apartment" column="a_apartment" type="java.lang.String" />
+			<property name="postIndex" column="a_postindex" type="java.lang.String" />
+			<property name="gps" column="a_gps" type="java.lang.String" />
+			<property name="fullAddress" column="a_full_address" type="java.lang.String" />
+			<property name="codeKLADR" column="a_code_kladr" type="java.lang.String" />
+			<property name="timeZone" column="a_time_zone" type="java.lang.Integer" />
+			<property name="codeKLADE" column="a_code_klade" type="java.lang.String" />
+			<property name="autonomyType" column="a_autonomy_type" type="java.lang.String" />
+			<property name="autonomyName" column="a_autonomy_name" type="java.lang.String" />
+			<property name="location" column="a_location" type="java.lang.String" />
+			<property name="intracityDistrict" column="a_intracity_district" type="java.lang.String" />
+		</component>
+		<property name="phone" column="ph_phone_number" type="java.lang.String" />
+		<property name="phoneAdd1" column="ph_phone_number_add1" type="java.lang.String" />
+		<property name="phoneAdd2" column="ph_phone_number_add2" type="java.lang.String" />
+		<property name="employeeNumber" column="employee_number" type="java.lang.Integer" />
+		<property name="webSite" column="web_site" type="java.lang.String" />
+  		<set name="products" lazy="false" fetch="join" cascade="save-update, delete">
+			<key column="is_organization_fk"/>
+			<one-to-many class="Product"/>
+		</set>
+		<set name="employees" lazy="false" fetch="join" cascade="save-update, delete">
+			<key column="is_organization_fk"/>
+			<one-to-many class="Person"/>
+		</set>
+		<set name="applications" lazy="false" fetch="join" cascade="save-update, delete">
+			<key column="is_organization_fk"/>
+			<one-to-many class="Application"/>
+		</set> 
+	</class>	
+</hibernate-mapping>

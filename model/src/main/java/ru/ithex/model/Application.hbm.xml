@@ -1,0 +1,59 @@
+<hibernate-mapping package="ru.ithex.model">
+	<class name="Application" table="oltp.application">
+		<id name="applicationID" column="application_id" type="java.lang.Integer">
+			<generator class="increment" />
+		</id>
+		<property name="appTimestamp" column="app_timestamp" type="java.util.Date" />
+		<many-to-one name="manager" column="manager_id" class="Person" />
+		<set name="callResults" lazy="false" fetch="join" cascade="save-update, delete">
+			<key column="application_fk"/>
+			<one-to-many class="CallResult"/>
+		</set>
+		<component name="requestedInfo" class="RequestedInfo">
+			<property name="stepCode" column="ri_step_code" type="java.lang.Integer" />
+			<property name="stepParameter" column="ri_step_parameter" type="java.lang.Integer" />
+			<property name="requestTimestamp" column="ri_request_timestamp" type="java.util.Date" />	
+			<property name="currentDate" column="ri_current_date" type="java.util.Date" />
+		</component>
+		<component name="appData" class="AppData">
+			<property name="appDateTime" column="ad_app_date_time" type="java.util.Date" />
+			<property name="appCloseDateTime" column="ad_app_close_date_time" type="java.util.Date" />
+			<property name="applicationStatus" column="ad_application_status" type="java.lang.Integer" />
+			<property name="appType" column="ad_app_type" type="java.lang.Integer" />
+			<property name="appChannel" column="ad_app_channel" type="java.lang.Integer" />
+			<property name="ordersTotalCost" column="ad_o_total_cost" type="java.math.BigDecimal" />
+			<property name="deliveryDateTime" column="ad_del_date_time" type="java.util.Date" />
+			<property name="deliveryFactDateTime" column="ad_del_fact_date_time" type="java.util.Date" />
+			<many-to-one name="person" column="person_fk" class="Person" />
+			<many-to-one name="organization" column="organization_fk" class="Organization" />
+			<set name="orders" lazy="false" fetch="join" cascade="save-update, delete">
+				<key column="application_fk"/>
+				<one-to-many class="Order"/>
+			</set>
+			<component name="delAddresses" class="Address">
+				<property name="country" column="addr_del_country" type="java.lang.String" />
+	            <property name="regionType" column="addr_del_region_type" type="java.lang.String" />
+	            <property name="regionName" column="addr_del_region_name" type="java.lang.String" />
+	            <property name="districtType" column="addr_del_district_type" type="java.lang.String" />
+	            <property name="districtName" column="addr_del_district_name" type="java.lang.String" />
+	            <property name="microdistrict" column="addr_del_microdistrict" type="java.lang.String" />
+	            <property name="locationType" column="addr_del_location_type" type="java.lang.String" />
+	            <property name="location" column="addr_del_location" type="java.lang.String" />
+	            <property name="cityType" column="addr_del_city_type" type="java.lang.String" />
+	            <property name="city" column="addr_del_city" type="java.lang.String" />
+	            <property name="streetType" column="addr_del_street_type" type="java.lang.String" />
+	            <property name="street" column="addr_del_street" type="java.lang.String" />
+	            <property name="house" column="addr_del_house" type="java.lang.String" />
+	            <property name="construction" column="addr_del_construction" type="java.lang.String" />
+	            <property name="building" column="addr_del_building" type="java.lang.String" />
+	            <property name="apartment" column="addr_del_apartment" type="java.lang.String" />
+	            <property name="postIndex" column="addr_del_postindex" type="java.lang.String" />
+	            <property name="gps" column="addr_del_gps" type="java.lang.String" />
+	            <property name="fullAddress" column="addr_del_full_address" type="java.lang.String" />
+	            <property name="codeKLADR" column="addr_del_code_kladr" type="java.lang.String" />
+	            <property name="codeKLADE" column="addr_del_code_klade" type="java.lang.String" />
+	            <property name="timeZone" column="addr_del_time_zone" type="java.lang.Integer" />
+			</component>
+		</component>		
+	</class>	
+</hibernate-mapping>
