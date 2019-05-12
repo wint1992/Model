@@ -1,119 +1,180 @@
 package ru.ithex.model;
 
-import static ru.ithex.model.TransformData.bigDecimalToInteger;
-import static ru.ithex.model.TransformData.transformTimestamp;
-
-import java.lang.reflect.Field;
-import java.math.BigDecimal;
-import java.util.Collection;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
-public class NextStep {
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSchemaType;
+
+@Entity
+@Table(name = "next_step")
+@XmlRootElement(name = "NextStep")
+@XmlAccessorType(XmlAccessType.FIELD)
+public class NextStep implements Externalizable {
+	private static final long serialVersionUID = 1l;
+	transient protected TransformData td = new TransformData();
 
 	public NextStep() {
 		super();
 	}
 
+	@Id
+	@SequenceGenerator(name = "seq_gen", sequenceName = "next_step_seq")
+	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "seq_gen")
+	@Column(name = "next_step_id")
+	@XmlAttribute
 	protected Integer nextStepID;
-	protected Integer stepCode;
-	protected Integer stepParameter;
-	protected Date stepPlaneDate;
-	protected Integer stepPriority;
-	protected boolean fake;
+
+	@Column(name = "step_code")
+	@XmlAttribute
+	protected int stepCode;
+
+	@Column(name = "step_plane_date_time")
+	@XmlAttribute
+	@XmlSchemaType(name = "dateTime")
+	protected Date stepPlaneDateTime;
+
+	@Column(name = "step_priority")
+	@XmlAttribute
+	protected int stepPriority;
+
+	@OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.ALL })
+	@JoinColumn(name = "next_step_fk")
+	@XmlElementWrapper(name = "StepParametrs")
+	@XmlElement(name = "StepParametr")
+	protected List<StepParametr> stepParametrs;
 
 	public Integer getNextStepID() {
 		return nextStepID;
 	}
 
-	public void setNextStepID(Integer value) {
-		this.nextStepID = value;
+	public void setNextStepID(Integer nextStepID) {
+		this.nextStepID = nextStepID;
 	}
 
-	public Integer getStepCode() {
+	public int getStepCode() {
 		return stepCode;
 	}
 
-	public void setStepCode(Integer value) {
-		this.stepCode = value;
+	public void setStepCode(int stepCode) {
+		this.stepCode = stepCode;
 	}
 
-	public void setStepCode(BigDecimal value) {
-		this.stepCode = bigDecimalToInteger(value);
+	public Date getStepPlaneDateTime() {
+		return stepPlaneDateTime;
 	}
 
-	public Integer getStepParameter() {
-		return stepParameter;
+	public void setStepPlaneDateTime(Date stepPlaneDateTime) {
+		this.stepPlaneDateTime = stepPlaneDateTime;
 	}
 
-	public void setStepParameter(Integer value) {
-		this.stepParameter = value;
-	}
-
-	public void setStepParameter(BigDecimal value) {
-		this.stepParameter = bigDecimalToInteger(value);
-	}
-
-	public Integer getStepPriority() {
+	public int getStepPriority() {
 		return stepPriority;
 	}
 
-	public void setStepPriority(Integer value) {
-		this.stepPriority = value;
+	public void setStepPriority(int stepPriority) {
+		this.stepPriority = stepPriority;
 	}
 
-	public void setStepPriority(BigDecimal value) {
-		this.stepPriority = bigDecimalToInteger(value);
+	public List<StepParametr> getStepParametrs() {
+		if (stepParametrs == null)
+			stepParametrs = new ArrayList<>();
+		return stepParametrs;
 	}
 
-	public Date getStepPlaneDate() {
-		return stepPlaneDate;
+	public void setStepParametrs(List<StepParametr> stepParametrs) {
+		this.stepParametrs = stepParametrs;
 	}
 
-	public void setStepPlaneDate(Date value) {
-		this.stepPlaneDate = value;
+	public void writeExternal(ObjectOutput out) throws IOException {
+		td.writeNullableObject(out, nextStepID);
+		out.writeInt(stepCode);
+		td.writeNullableObject(out, stepPlaneDateTime);
+		out.writeInt(stepPriority);
+
+		out.writeInt(getStepParametrs().size());
+		for (Externalizable ext : getStepParametrs())
+			ext.writeExternal(out);
+
 	}
 
-	public String toString() {
-		StringBuilder sb = new StringBuilder("{");
-		try {
-			boolean hasFirstProperty = false;
-			Field[] fields = this.getClass().getDeclaredFields();
-			for (int i = 0; i < fields.length - 1; i++) {
-				if (fields[i].get(this) != null) {
-					if (fields[i].getType().equals(String.class)) {
-						if (hasFirstProperty)
-							sb.append(",");
-						sb.append("\"").append(fields[i].getName()).append("\"").append(": \"")
-								.append(fields[i].get(this).toString()).append("\"");
-						hasFirstProperty = true;
-					} else if (fields[i].getType().equals(Date.class)) {
-						if (hasFirstProperty)
-							sb.append(",");
-						sb.append("\"").append(fields[i].getName()).append("\"").append(": \"")
-								.append(transformTimestamp((Date) fields[i].get(this)).toString()).append("\"");
-						hasFirstProperty = true;
-					} else if (fields[i].getType().equals(Set.class) || fields[i].getType().equals(List.class)) {
-						if (((Collection) fields[i].get(this)).size() > 0) {
-							if (hasFirstProperty)
-								sb.append(",");
-							sb.append("\"").append(fields[i].getName()).append("\"").append(": ")
-									.append(fields[i].get(this).toString());
-							hasFirstProperty = true;
-						}
-					} else {
-						if (hasFirstProperty)
-							sb.append(",");
-						sb.append("\"").append(fields[i].getName()).append("\"").append(": ")
-								.append(fields[i].get(this).toString());
-						hasFirstProperty = true;
-					}
-				}
-			}
-		} catch (Exception e) {
-			sb.append("null");
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		nextStepID = in.readBoolean() == true ? in.readInt() : null;
+		stepCode = in.readInt();
+		stepPlaneDateTime = in.readBoolean() == true ? new Date(in.readLong()) : null;
+		stepPriority = in.readInt();
+
+		int count = in.readInt();
+		for (int i = 0; i < count; i++) {
+			StepParametr ext = new StepParametr();
+			ext.readExternal(in);
+			getStepParametrs().add(ext);
 		}
-		return sb.append("}").toString();
 	}
+
+	// @SuppressWarnings("all")
+	// public String toString() {
+	// StringBuilder sb = new StringBuilder("{");
+	// try {
+	// boolean hasFirstProperty = false;
+	// Field[] fields = this.getClass().getDeclaredFields();
+	// for (int i = 0; i < fields.length - 1; i++) {
+	// if (fields[i].get(this) != null) {
+	// if (fields[i].getType().equals(String.class)) {
+	// if (hasFirstProperty)
+	// sb.append(",");
+	// sb.append("\"").append(fields[i].getName()).append("\"").append(": \"")
+	// .append(fields[i].get(this).toString()).append("\"");
+	// hasFirstProperty = true;
+	// } else if (fields[i].getType().equals(Date.class)) {
+	// if (hasFirstProperty)
+	// sb.append(",");
+	// sb.append("\"").append(fields[i].getName()).append("\"").append(": \"")
+	// .append(transformTimestamp((Date)
+	// fields[i].get(this)).toString()).append("\"");
+	// hasFirstProperty = true;
+	// } else if (fields[i].getType().equals(Set.class) ||
+	// fields[i].getType().equals(List.class)) {
+	// if (((Collection) fields[i].get(this)).size() > 0) {
+	// if (hasFirstProperty)
+	// sb.append(",");
+	// sb.append("\"").append(fields[i].getName()).append("\"").append(": ")
+	// .append(fields[i].get(this).toString());
+	// hasFirstProperty = true;
+	// }
+	// } else {
+	// if (hasFirstProperty)
+	// sb.append(",");
+	// sb.append("\"").append(fields[i].getName()).append("\"").append(": ")
+	// .append(fields[i].get(this).toString());
+	// hasFirstProperty = true;
+	// }
+	// }
+	// }
+	// } catch (Exception e) {
+	// sb.append("null");
+	// }
+	// return sb.append("}").toString();
+	// }
 }

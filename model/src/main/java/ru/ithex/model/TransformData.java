@@ -1,42 +1,66 @@
 package ru.ithex.model;
 
-import java.io.Serializable;
+import java.beans.PropertyEditorSupport;
+import java.io.IOException;
+import java.io.ObjectOutput;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-public class TransformData implements Serializable {
+public class TransformData extends PropertyEditorSupport {
 
-	private static final long serialVersionUID = -4852071941436382431L;
+	public static Date stringToDate(String dateWithFormat) {
+		// 1-й аргумент в text - дата/время, 2-ой - формат; по умолчанию формат
+		// yyyy-MM-dd,
+		// для указания времени использовать пример: "1992-08-24T00:00:00,
+		// yyyy-MM-dd'T'HH:mm:ss "
+		String[] split = dateWithFormat.split(",");
+		Date resultDate = null;
+		try {
+			if (split.length == 2)
+				resultDate = new SimpleDateFormat(split[1]).parse(split[0]);
+			else
+				resultDate = new SimpleDateFormat("yyyy-MM-dd").parse(split[0]);
+		} catch (Exception e) {
+		}
+
+		return resultDate;
+	}
+
+	private static String dateToString(Date date, String returningFormat) {
+		return new SimpleDateFormat(returningFormat).format(date);
+	}
+
+	public static String dateToString(Date date) {
+		return dateToString(date, "yyyy-MM-dd");
+	}
+
+	public static String timestampToString(Date date) {
+		return dateToString(date, "yyyy-MM-dd'T'HH:mm:ss");
+	}
 
 	public static XMLGregorianCalendar transformDate(Date date) {
-		if (date == null) {
-			return null;
-		}
+		XMLGregorianCalendar result = null;
 		try {
-			return DatatypeFactory.newInstance()
-					.newXMLGregorianCalendar(new SimpleDateFormat("yyyy-MM-dd").format(date));
+			result = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateToString(date));
 		} catch (DatatypeConfigurationException e) {
-			return null;
 		}
+		return result;
 	}
 
 	public static XMLGregorianCalendar transformTimestamp(Date date) {
-		if (date == null) {
-			return null;
-		}
+		XMLGregorianCalendar result = null;
 		try {
-			return DatatypeFactory.newInstance()
-					.newXMLGregorianCalendar(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(date));
+			result = DatatypeFactory.newInstance().newXMLGregorianCalendar(timestampToString(date));
 		} catch (DatatypeConfigurationException e) {
-			return null;
 		}
+		return result;
 	}
 
 	public static Integer bigDecimalToInteger(BigDecimal value) {
@@ -44,27 +68,58 @@ public class TransformData implements Serializable {
 	}
 
 	public static Boolean bigDecimalToBoolean(BigDecimal value) {
-		return value == null ? null : (value.compareTo(new BigDecimal(0)) == 0 ? false : true);
+		return value == null ? null : (value.intValue() == 0 ? false : true);
 	}
 
 	public static Integer diffDays(Date dfrom, Date dto) {
-		return diffDays(transformTimestamp(dfrom), transformTimestamp(dto));
+		return dfrom == null | dto == null ? null : (int) TimeUnit.DAYS.convert(Math.abs(dto.getTime() - dfrom.getTime()), TimeUnit.MILLISECONDS);
 	}
 
 	public static Integer diffDays(XMLGregorianCalendar dfrom, XMLGregorianCalendar dto) {
-		return diffDays(dfrom.toGregorianCalendar(), dto.toGregorianCalendar());
+		return dfrom == null | dto == null ? null : diffDays(dfrom.toGregorianCalendar().getTime(), dto.toGregorianCalendar().getTime());
+	}
+
+	public static Integer diffDays(String d1WithFormat, String d2WithFormat) {
+		return d1WithFormat == null | d2WithFormat == null ? null : diffDays(stringToDate(d1WithFormat), stringToDate(d2WithFormat));
 	}
 
 	public static Integer diffDays(GregorianCalendar dfrom, GregorianCalendar dto) {
-		Integer count = 0;
-		if (dfrom.compareTo(dto) != 1)
-			for (GregorianCalendar dfrom_muta = (GregorianCalendar) dfrom.clone(); dfrom_muta
-					.compareTo(dto) == -1; dfrom_muta.add(Calendar.DATE, 1))
-				count++;
-		else
-			for (GregorianCalendar dfrom_muta = (GregorianCalendar) dto.clone(); dfrom_muta
-					.compareTo(dfrom) == -1; dfrom_muta.add(Calendar.DATE, 1))
-				count++;
-		return count;
+		return dfrom == null | dto == null ? null : diffDays(dfrom.getTime(), dto.getTime());
+	}
+
+	@Override
+	public void setAsText(String text) throws IllegalArgumentException {
+		setValue(stringToDate(text));
+	}
+
+	int countBD;
+	byte[] bytesBD;
+
+	public void writeNullableObject(ObjectOutput out, Object obj) throws IOException {
+		if (obj == null) {
+			out.writeBoolean(false);
+		} else {
+			out.writeBoolean(true);
+			if (obj instanceof String)
+				out.writeUTF((String) obj);
+			else if (obj instanceof Integer)
+				out.writeInt((Integer) obj);
+			else if (obj instanceof Byte)
+				out.writeByte((Byte) obj);
+			else if (obj instanceof Long)
+				out.writeLong((Long) obj);
+			else if (obj instanceof Date)
+				out.writeLong(((Date) obj).getTime());
+			else if (obj instanceof Double)
+				out.writeDouble((Double) obj);
+			else if (obj instanceof Boolean)
+				out.writeBoolean((Boolean) obj);
+			else if (obj instanceof BigDecimal) {
+				bytesBD = ((BigDecimal) obj).unscaledValue().toByteArray();
+				out.writeInt(bytesBD.length);
+				out.write(bytesBD);
+				out.writeInt(((BigDecimal) obj).scale());
+			}
+		}
 	}
 }

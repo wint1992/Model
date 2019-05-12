@@ -1,13 +1,13 @@
-<hibernate-mapping package="ru.ithex.model">
-	<class name="Action" table="oltp.action">
-		<id name="actionID" column="ID" type="java.lang.Integer">
+ <hibernate-mapping package="ru.ithex.model">
+	<class name="Action" table='tst.action'>
+		<id name="actionID" column="action_id" type="java.lang.Integer">
 			<generator class="increment" />
 		</id>
-		<property name="actionType" column="action_Type" type="java.lang.Integer" />
+	 	<property name="actionType" column="action_Type" type="java.lang.Integer" />
 		<property name="actionResult" column="action_Result" type="java.lang.Integer" />
 		<property name="actionManagerID" column="action_Manager_ID" type="java.lang.Integer" />
-		<property name="actionNewManagerID" column="action_New_Manager_ID" type="java.lang.Integer" />
+		<property name="actionPreviousManagerID" column="action_previous_manager_id" type="java.lang.Integer" />
 		<property name="actionDateTime" column="action_Date_Time" type="java.util.Date" />
-		<property name="actionComment" column="action_Comment" type="java.lang.String" />
+		<property name="actionComment" column="action_Comment" type="java.lang.String" /> 
 	</class>	
-</hibernate-mapping>
+</hibernate-mapping> 
