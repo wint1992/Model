@@ -1,9 +1,0 @@
-<hibernate-mapping package="ru.ithex.model">
-	<class name="ReasonCode" table="oltp.Reason_Code">
-		<id name="reasonCodeID" column="ID" type="java.lang.Integer">
-			<generator class="increment" />
-		</id>
-		<property name="firedTimestamp" column="fired_Timestamp" type="java.util.Date" />
-		<property name="decisionReasonCode" column="decision_Reason_Code" type="java.lang.String" />
-	</class>	
-</hibernate-mapping>

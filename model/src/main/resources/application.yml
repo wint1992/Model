@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: "jdbc:postgresql://localhost:5432/prerequisite_db?currentSchema=prerequisite"
+    username: tst
+    password: 123
+    continue-on-error: true
+    hikari:
+      connection-timeout: 2000
+
+  jpa:
+    properties:
+      hibernate:
+        default_schema: prerequisite
+        dialect: org.hibernate.dialect.PostgreSQL9Dialect
+        naming-strategy: org.hibernate.cfg.DefaultNamingStrategy
+        temp.use_jdbc_metadata_defaults: false
+        jdbc.lob.non_contextual_creation: true
+
+  data:
+    jpa:
+      repositories:
+        enabled: true

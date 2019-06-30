@@ -1,9 +1,0 @@
-<hibernate-mapping package="ru.ithex.model">
-	<class name="Interest" table="oltp.Interest">
-		<id name="interestID" column="ID" type="java.lang.Integer">
-			<generator class="increment" />
-		</id>
-		<property name="interestType" column="Type" type="java.lang.Integer" />
-		<property name="interestValue" column="Value" type="java.lang.String" />
-	</class>	
-</hibernate-mapping>

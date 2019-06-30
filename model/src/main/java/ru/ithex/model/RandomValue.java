@@ -1,5 +1,7 @@
 package ru.ithex.model;
 
+import lombok.Data;
+import static ru.ithex.model.utils.Serialization.*;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -23,25 +25,21 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement(name = "RandomValue")
 @XmlAccessorType(XmlAccessType.FIELD)
 @Entity
+@Data
 @Table(name = "random_value")
 public class RandomValue implements Externalizable {
 	private static final long serialVersionUID = 1l;
-	transient protected TransformData td = new TransformData();
-
-	public RandomValue() {
-		super();
-	}
 
 	@Id
-	@SequenceGenerator(name = "seq_gen", sequenceName = "random_value_seq")
-	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "seq_gen")
-	@Column(name = "id")
+	@SequenceGenerator(name = "seq_gen_random_value", sequenceName = "random_value_id_seq")
+	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "seq_gen_random_value")
+	@Column(name = "random_value_id")
 	@XmlTransient
-	protected Integer id;
+	protected Integer randomValueId;
 
 	@Column(name = "value")
 	@XmlAttribute
-	protected int value;
+	protected Integer value;
 
 	@Column(name = "create_date_time")
 	@XmlAttribute
@@ -52,47 +50,19 @@ public class RandomValue implements Externalizable {
 	@XmlAttribute
 	protected String whereUsed;
 
-	public int getValue() {
-		return value;
-	}
-
-	public void setValue(int value) {
-		this.value = value;
-	}
-
-	public Date getCreateDateTime() {
-		return createDateTime;
-	}
-
-	public void setCreateDateTime(Date createDateTime) {
-		this.createDateTime = createDateTime;
-	}
-
-	public String getWhereUsed() {
-		return whereUsed;
-	}
-
-	public void setWhereUsed(String whereUsed) {
-		this.whereUsed = whereUsed;
-	}
-
-	public Integer getId() {
-		return id;
-	}
-
 	public void writeExternal(ObjectOutput out) throws IOException {
-		td.writeNullableObject(out, id);
-		td.writeNullableObject(out, value);
-		td.writeNullableObject(out, createDateTime);
-		td.writeNullableObject(out, whereUsed);
+		writeNullableObject(out, randomValueId);
+		writeNullableObject(out, value);
+		writeNullableObject(out, createDateTime);
+		writeNullableObject(out, whereUsed);
 
 	}
 
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		id = in.readBoolean() == true ? in.readInt() : null;
-		value = in.readBoolean() == true ? in.readInt() : null;
-		createDateTime = in.readBoolean() == true ? new Date(in.readLong()) : null;
-		whereUsed = in.readBoolean() == true ? in.readUTF() : null;
+		randomValueId = readIntFromObjectInput(in);
+		value = readIntFromObjectInput(in);
+		createDateTime = readLongToDateFromObjectInput(in);
+		whereUsed = readStringFromObjectInput(in);
 	}
 
 }

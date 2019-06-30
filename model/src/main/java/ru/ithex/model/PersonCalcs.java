@@ -1,110 +1,50 @@
 package ru.ithex.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
+import ru.ithex.model.dictionaries.PersonSegment;
+
+import static ru.ithex.model.utils.Serialization.*;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.persistence.*;
+import javax.xml.bind.annotation.*;
 
 @Embeddable
+@Data
 @XmlRootElement(name = "PersonCalcs")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PersonCalcs implements Externalizable {
 	private static final long serialVersionUID = 1l;
-	transient protected TransformData td = new TransformData();
 
-	public PersonCalcs() {
-		super();
-	}
+	@JsonIgnore
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "pc_person_segment_id")
+	@XmlTransient
+	protected PersonSegment personSegment;
 
-	@Column(name = "pc_segment")
 	@XmlAttribute
-	protected Integer segment;
+	public Integer getPersonSegmentId(){ return personSegment != null ? personSegment.getPersonSegmentId() : null;}
+
+	@XmlAttribute
+	public String getPersonSegment(){ return personSegment != null ? personSegment.getPersonSegmentName() : null;}
 
 	@Column(name = "pc_total_income")
 	@XmlAttribute
 	protected BigDecimal totalIncome;
 
-	public Integer getSegment() {
-		return segment;
-	}
-
-	public void setSegment(Integer segment) {
-		this.segment = segment;
-	}
-
-	public BigDecimal getTotalIncome() {
-		return totalIncome;
-	}
-
-	public void setTotalIncome(BigDecimal totalIncome) {
-		this.totalIncome = totalIncome;
-	}
-
 	public void writeExternal(ObjectOutput out) throws IOException {
-		td.writeNullableObject(out, segment);
-		td.writeNullableObject(out, totalIncome);
+		writeNullableObject(out, totalIncome);
+		personSegment.writeExternal(out);
 	}
 
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		segment = in.readBoolean() == true ? in.readInt() : null;
-		if (in.readBoolean() == true) {
-			int countBD = in.readInt();
-			byte[] bytesBD = new byte[countBD];
-			in.read(bytesBD, 0, countBD);
-			totalIncome = new BigDecimal(new BigInteger(bytesBD), in.readInt());
-		}
+		totalIncome = readBigDecimalFromObjectInput(in);
+		personSegment = new PersonSegment();
+		personSegment.readExternal(in);
 	}
-
-	// @SuppressWarnings("all")
-	// public String toString() {
-	// StringBuilder sb = new StringBuilder("{");
-	// try {
-	// boolean hasFirstProperty = false;
-	// Field[] fields = this.getClass().getDeclaredFields();
-	// for (int i = 0; i < fields.length - 1; i++) {
-	// if (fields[i].get(this) != null) {
-	// if (fields[i].getType().equals(String.class)) {
-	// if (hasFirstProperty)
-	// sb.append(",");
-	// sb.append("\"").append(fields[i].getName()).append("\"").append(": \"")
-	// .append(fields[i].get(this).toString()).append("\"");
-	// hasFirstProperty = true;
-	// } else if (fields[i].getType().equals(Date.class)) {
-	// if (hasFirstProperty)
-	// sb.append(",");
-	// sb.append("\"").append(fields[i].getName()).append("\"").append(": \"")
-	// .append(transformDate((Date) fields[i].get(this)).toString()).append("\"");
-	// hasFirstProperty = true;
-	// } else if (fields[i].getType().equals(Set.class) ||
-	// fields[i].getType().equals(List.class)) {
-	// if (((Collection) fields[i].get(this)).size() > 0) {
-	// if (hasFirstProperty)
-	// sb.append(",");
-	// sb.append("\"").append(fields[i].getName()).append("\"").append(": ")
-	// .append(fields[i].get(this).toString());
-	// hasFirstProperty = true;
-	// }
-	// } else {
-	// if (hasFirstProperty)
-	// sb.append(",");
-	// sb.append("\"").append(fields[i].getName()).append("\"").append(": ")
-	// .append(fields[i].get(this).toString());
-	// hasFirstProperty = true;
-	// }
-	// }
-	// }
-	// } catch (Exception e) {
-	// sb.append("null");
-	// }
-	// return sb.append("}").toString();
-	// }
 }

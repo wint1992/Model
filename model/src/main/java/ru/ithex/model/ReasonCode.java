@@ -1,39 +1,30 @@
 package ru.ithex.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
+import ru.ithex.model.dictionaries.ReasonCodeType;
+
+import static ru.ithex.model.utils.Serialization.*;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchemaType;
+import javax.persistence.*;
+import javax.xml.bind.annotation.*;
 
+@XmlRootElement(name = "ReasonCode")
 @Entity
 @Table(name = "reason_code")
-@XmlRootElement(name = "ReasonCode")
+@Data
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ReasonCode implements Externalizable {
 	private static final long serialVersionUID = 1l;
-	transient protected TransformData td = new TransformData();
-
-	public ReasonCode() {
-		super();
-	}
 
 	@Id
-	@SequenceGenerator(name = "seq_gen", sequenceName = "reason_code_seq")
-	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "seq_gen")
+	@SequenceGenerator(name = "seq_gen_reason_code", sequenceName = "reason_code_id_seq")
+	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "seq_gen_reason_code")
 	@Column(name = "reason_code_id")
 	@XmlAttribute
 	protected Integer reasonCodeID;
@@ -43,102 +34,28 @@ public class ReasonCode implements Externalizable {
 	@XmlSchemaType(name = "dateTime")
 	protected Date firedTimestamp;
 
-	@Column(name = "decision_reason_code")
+	@JsonIgnore
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "reason_code_type_id")
+	@XmlTransient
+	protected ReasonCodeType reasonCodeType;
+
 	@XmlAttribute
-	protected String decisionReasonCode;
+	public Integer getReasonCodeDecision(){ return reasonCodeType != null ? reasonCodeType.getReasonCodeDecision() : null;}
 
-	@Column(name = "decision_reason_value")
 	@XmlAttribute
-	protected int decisionReasonValue;
-
-	public Integer getReasonCodeID() {
-		return reasonCodeID;
-	}
-
-	public void setReasonCodeID(Integer reasonCodeID) {
-		this.reasonCodeID = reasonCodeID;
-	}
-
-	public Date getFiredTimestamp() {
-		return firedTimestamp;
-	}
-
-	public void setFiredTimestamp(Date firedTimestamp) {
-		this.firedTimestamp = firedTimestamp;
-	}
-
-	public String getDecisionReasonCode() {
-		return decisionReasonCode;
-	}
-
-	public void setDecisionReasonCode(String decisionReasonCode) {
-		this.decisionReasonCode = decisionReasonCode;
-	}
-
-	public int getDecisionReasonValue() {
-		return decisionReasonValue;
-	}
-
-	public void setDecisionReasonValue(int decisionReasonValue) {
-		this.decisionReasonValue = decisionReasonValue;
-	}
+	public String getReasonCodeValue(){ return reasonCodeType != null ? reasonCodeType.getReasonCodeValue() : null;}
 
 	public void writeExternal(ObjectOutput out) throws IOException {
-		td.writeNullableObject(out, reasonCodeID);
-		td.writeNullableObject(out, firedTimestamp);
-		td.writeNullableObject(out, decisionReasonCode);
-		out.writeInt(decisionReasonValue);
+		writeNullableObject(out, reasonCodeID);
+		writeNullableObject(out, firedTimestamp);
+		reasonCodeType.writeExternal(out);
 	}
 
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		reasonCodeID = in.readBoolean() == true ? in.readInt() : null;
-		firedTimestamp = in.readBoolean() == true ? new Date(in.readLong()) : null;
-		decisionReasonCode = in.readBoolean() == true ? in.readUTF() : null;
-		decisionReasonValue = in.readInt();
+		reasonCodeID = readIntFromObjectInput(in);
+		firedTimestamp = readLongToDateFromObjectInput(in);
+		reasonCodeType = new ReasonCodeType();
+		reasonCodeType.readExternal(in);
 	}
-
-	// @SuppressWarnings("all")
-	// public String toString() {
-	// StringBuilder sb = new StringBuilder("{");
-	// try {
-	// boolean hasFirstProperty = false;
-	// Field[] fields = this.getClass().getDeclaredFields();
-	// for (int i = 0; i < fields.length - 1; i++) {
-	// if (fields[i].get(this) != null) {
-	// if (fields[i].getType().equals(String.class)) {
-	// if (hasFirstProperty)
-	// sb.append(",");
-	// sb.append("\"").append(fields[i].getName()).append("\"").append(": \"")
-	// .append(fields[i].get(this).toString()).append("\"");
-	// hasFirstProperty = true;
-	// } else if (fields[i].getType().equals(Date.class)) {
-	// if (hasFirstProperty)
-	// sb.append(",");
-	// sb.append("\"").append(fields[i].getName()).append("\"").append(": \"")
-	// .append(transformTimestamp((Date)
-	// fields[i].get(this)).toString()).append("\"");
-	// hasFirstProperty = true;
-	// } else if (fields[i].getType().equals(Set.class) ||
-	// fields[i].getType().equals(List.class)) {
-	// if (((Collection) fields[i].get(this)).size() > 0) {
-	// if (hasFirstProperty)
-	// sb.append(",");
-	// sb.append("\"").append(fields[i].getName()).append("\"").append(": ")
-	// .append(fields[i].get(this).toString());
-	// hasFirstProperty = true;
-	// }
-	// } else {
-	// if (hasFirstProperty)
-	// sb.append(",");
-	// sb.append("\"").append(fields[i].getName()).append("\"").append(": ")
-	// .append(fields[i].get(this).toString());
-	// hasFirstProperty = true;
-	// }
-	// }
-	// }
-	// } catch (Exception e) {
-	// sb.append("null");
-	// }
-	// return sb.append("}").toString();
-	// }
 }

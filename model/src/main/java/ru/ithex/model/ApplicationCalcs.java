@@ -1,5 +1,8 @@
 package ru.ithex.model;
 
+import lombok.Data;
+import static ru.ithex.model.utils.Serialization.*;
+
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -17,36 +20,19 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Embeddable
 @XmlRootElement(name = "ApplicationCalcs")
 @XmlAccessorType(XmlAccessType.FIELD)
+@Data
 public class ApplicationCalcs implements Externalizable {
 	private static final long serialVersionUID = 1l;
-	transient private TransformData td = new TransformData();
-
-	public ApplicationCalcs() {
-		super();
-	}
 
 	@Column(name = "ac_orders_total_cost")
 	@XmlAttribute
 	protected BigDecimal ordersTotalCost;
 
-	public BigDecimal getOrdersTotalCost() {
-		return ordersTotalCost;
-	}
-
-	public void setOrdersTotalCost(BigDecimal ordersTotalCost) {
-		this.ordersTotalCost = ordersTotalCost;
-	}
-
 	public void writeExternal(ObjectOutput out) throws IOException {
-		td.writeNullableObject(out, ordersTotalCost);
+		writeNullableObject(out, ordersTotalCost);
 	}
 
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		if (in.readBoolean() == true) {
-			int countBD = in.readInt();
-			byte[] bytesBD = new byte[countBD];
-			in.read(bytesBD, 0, countBD);
-			ordersTotalCost = new BigDecimal(new BigInteger(bytesBD), in.readInt());
-		}
+		ordersTotalCost = readBigDecimalFromObjectInput(in);
 	}
 }

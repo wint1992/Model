@@ -1,6 +1,37 @@
-/target/classes/
-/target/generated-sources/
-/target/maven-archiver/
-/target/maven-status/
-/target/test-classes/
 /target/
+!.mvn/wrapper/maven-wrapper.jar
+/build/
+/log/
+.gradle
+!gradle/wrapper/gradle-wrapper.jar
+
+
+### Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+.mvn
+.build
+.log
+.out
+.target
+
+### NetBeans ###
+/nbproject/private/
+/build/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+/out/
